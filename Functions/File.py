@@ -8,6 +8,7 @@ try:
     import time
 
     import os
+    import sys
 
     # import numpy as np
     import pickle
@@ -17,7 +18,6 @@ try:
     import requests
     import json
     import ast
-    from lxml import html
 
     from docx.shared import Inches
     from docx import Document
@@ -32,6 +32,30 @@ except Exception as e:
     print(e)
     while True:
         input('\n! ! ERROR --> A module is not installed...')
+
+
+# When you compile your PyQt5 code with pyinstaller,
+# exe file can throw error sometimes.
+# To avoid that, I run below 2 functions before everything in PyQt5 code.
+def _append_run_path():
+    if getattr(sys, 'frozen', False):
+        pathlist = []
+        pathlist.append(sys._MEIPASS)
+
+        _main_app_path = os.path.dirname(sys.executable)
+        pathlist.append(_main_app_path)
+        os.environ["PATH"] += os.pathsep + os.pathsep.join(pathlist)
+
+def source_path(add_path="chromedriver.exe"):
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, add_path)
+# USAGE OF -------------------
+"""
+_append_run_path()
+driver = source_path("chromedriver.exe")
+env_file = source_path(".env")
+"""
+# USAGE OF -------------------
 
 
 def create_folder(folder_name, path='./', exit_all=True):
@@ -201,9 +225,10 @@ else:
     id_last = 0
 """
 
-def save_records_data(txt_file, val_list, exit_all=True):
+def save_records_data(txt_file, val_list, message='File updating...', exit_all=True):
     # This def is for saving data with columns like excel but into the txt file
     try:
+        print(message)
         file = open(txt_file, 'a', encoding='utf-8')
         for val in val_list:
             file.write(str(val))
@@ -214,7 +239,7 @@ def save_records_data(txt_file, val_list, exit_all=True):
         file.write('\n')
 
         file.close()
-        print('\nFile saved.')
+        print('File saved.')
     except Exception as e:
         message = '--> An error occurred while saving file.'
         Progress.exit_app(message=message, e=e, exit_all=exit_all)
@@ -280,6 +305,8 @@ def read_records_data_to_dict(txt_file, show_progress=True, file_not_found_error
                 if not len(read_dict[key]):
                     del read_dict[key]
     except Exception as e:
+        if show_progress:
+            print()
         message = "--> An error occurred while reading file -> '%s'" % txt_file
         Progress.exit_app(e=e, message=message, exit_all=exit_all)
 
@@ -314,14 +341,19 @@ def find_file(file, path='.'):
     return file
 
 
-def excel_read_to_dict(excel, number_of_sheet=0):
+def excel_read_to_dict(excel, number_of_sheet=0, exit_all=False):
+    all_data = dict()
+
     # Check and add xlsx or xls if there is not at the end.
     file_name, file_extension = os.path.splitext(excel)
     if file_extension != '.xlsx' or file_extension != '.xls':
         excel = file_name + '.xlsx'
 
+    # check all versions of the file name if it is exist in directory.
+    # (Checking with all lower and capital characters for excel name if it is equal any file.)
     excel = find_file(excel)
     if not os.path.exists(excel):
+        # So given file name could not be found in directory with any combinations of capital and lower characters.
         excel2 = None
 
         # switch between xlsx and xls
@@ -331,15 +363,20 @@ def excel_read_to_dict(excel, number_of_sheet=0):
             excel2 = file_name + '.xlsx'
 
         if excel2:
+            # if given file name is xlsx, it switched to xls in "excel2"
+            # if given file name is xls, it switched to xlsx in "excel2"
+            # and checking again...
             excel2 = find_file(excel2)
             if not os.path.exists(excel2):
                 message = "! ! File couldn't be found in folder. --> '%s' or '%s'" % (excel, excel2)
-                Progress.exit_app(message=message, exit_all=True)
+                Progress.exit_app(message=message, exit_all=exit_all)
+                return all_data
             else:
                 excel = excel2
         else:
             message = "! ! File couldn't be found in folder. --> '%s'" % (excel)
-            Progress.exit_app(message=message, exit_all=True)
+            Progress.exit_app(message=message, exit_all=exit_all)
+            return all_data
 
     workbook = xlrd.open_workbook(excel)  # sheet
     sheet = workbook.sheet_by_index(number_of_sheet)  # page
@@ -353,19 +390,25 @@ def excel_read_to_dict(excel, number_of_sheet=0):
     message = 'Reading excel...'
     time.sleep(0.01)
 
-    all_data = dict()
     number_of_data = 0
+
     for y in range(number_of_row):
         key = sheet.cell_value(rowx=y, colx=0)
         try:
             key = int(key)
         except:
             pass
+
+        # I only get integer keys which means excel rows which has integer at first cell.
+        # This is for not getting header rows in my dictionary.
+        # and I design my excels with ID column at first column.
         if isinstance(key, int):
             number_of_data += 1
-            all_data[key] = list()
+            all_data[number_of_data] = list()
             for x in range(number_of_column):
-                all_data[key].append(sheet.cell_value(rowx=y, colx=x))
+                val = sheet.cell_value(rowx=y, colx=x)
+                val = String.float_to_integer(val, force_number=False)
+                all_data[number_of_data].append(val)
 
         count += 1
 
@@ -377,6 +420,12 @@ def excel_read_to_dict(excel, number_of_sheet=0):
         )
 
     print('\nNumber of item: %s' % len(all_data))
+    # it returns a dictionary from 3 rows excel file as:
+    # all_data = {
+    #     1: ['1st Column Value', '2nd Column Value', '3rd Column Value', '4th Column Value', '5th Column Value', ],
+    #     2: ['1st Column Value', '2nd Column Value', '3rd Column Value', '4th Column Value', '5th Column Value', ],
+    #     3: ['1st Column Value', '2nd Column Value', '3rd Column Value', '4th Column Value', '5th Column Value', ],
+    # }
     return all_data
 
 def excel_create(excel, all_data, headers=None, sizes=None, page_name='Page1', exit_all=False, ):
@@ -399,14 +448,14 @@ def excel_create(excel, all_data, headers=None, sizes=None, page_name='Page1', e
             return
 
         if len(all_data):
-            length = 0
+            length_max = 0
             for val in all_data.values():
-                if length < len(val):
+                if length_max < len(val):
                     # Find the row which has maximum length
-                    length = len(val)
+                    length_max = len(val)
 
             i = 0
-            while len(headers) < (length - 1):
+            while len(headers) < length_max:
                 # if maximum length of any row larger than HEADERS, add "Header %i" rest of the headers
                 i += 1
                 headers.append('Header %s' % i)
@@ -414,8 +463,8 @@ def excel_create(excel, all_data, headers=None, sizes=None, page_name='Page1', e
             for key in list(all_data.keys()):
                 # if length of Headers larger than any row, add empty cell end of the row
                 while 0 <= (len(headers) - len(all_data[key])):
-                    length = len(all_data[key])
-                    all_data[key].insert(length - 1, '')
+                    length_max = len(all_data[key])
+                    all_data[key].insert(length_max, '')
 
         sizes_exist = False
         if sizes:
@@ -486,10 +535,8 @@ def excel_create(excel, all_data, headers=None, sizes=None, page_name='Page1', e
                     worksheet.write(row, col, elem, cell_format_regular)
             row += 1
 
-
             count += 1
             Progress.progress(count=count, total=total, now=now, )
-
 
         print()
         workbook.close()

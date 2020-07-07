@@ -1,16 +1,15 @@
-# Proxy Scraper - Automated Non-Stop
+# Excel Read and Create
 
-## What is Proxy Scraper?
+## What is Excel Read and Create?
 
-This bot each defined second, crawls updated proxies to a txt file.
+* You can read excels with 1 line code to the dictionary.
+* And you can create excels with 1 line code from the dictionary.
 
-* You can call same function in your app and it will before crawling all proxies again, use crawled proxies from file to save time.
-
-* You always have at least 130 fresh proxies in your file. Default 130 value can be overwritten.
-
-* All proxies are testing and the proxies which doesn't work, are saved to another file to not use again.
+Given excel name is not case sensitive. This means, program detects the file even if given file name is incorrect about upper or lower case.
 
 ## Requirements
+
+Basically uses xlrd and xlsxwriter packages.
 
 ```
 pip install -r requirements.txt
@@ -19,25 +18,9 @@ pip install -r requirements.txt
 ## How to Run it
 
 ```
-python "Proxy Scraper.py"
+python "Excel Read and Create.py"
 ```
 
-Then answer **3 questions**. You can just press enter to all for **default values.**
+Then enter the import and export file names.
 
-```
-How often would you like to make proxy control (For default, leave empty - 5 secs.):
-```
-
-```
-What is your WORKING proxies file name (For default, leave empty - Recorded OK Proxies.txt): 
-```
-
-```
-What is your ERROR proxies file name (For default, leave empty - Recorded FALSE Proxies.txt): 
-```
-
-**It will continuously work with checking performance of current proxies.**
-
-<hr>
-
-![Proxy Scraper Screenshot](https://github.com/berkaymizrak/Proxy-Scraper/blob/master/Functions/proxy_scraper_screen2.png?raw=true)
+You can use in your own app easily by calling the function.
