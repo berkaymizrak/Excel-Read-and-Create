@@ -23,4 +23,4 @@ python "Excel Read and Create.py"
 
 Then enter the import and export file names.
 
-You can use in your own app easily by calling the function.
+You can use in your own app easily by calling the function. Read py file and find explanation.
