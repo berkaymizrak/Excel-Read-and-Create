@@ -26,14 +26,13 @@ except Exception as e:
 # Check if program has permission to run from developer by API
 # Connect.check_run(code, program, 30, sound_error=True)  # <-- Remove this line in your app or you can create yours.
 
-
 excel_read = input('\nWhat is your excel name which will be read? (For default, leave empty - Import.xlsx): ')
 if not excel_read:
     excel_read = 'Import.xlsx'
 
-excel_create = input('\nWhat is your excel name which will be created? (For default, leave empty - Export.xlsx): ')
-if not excel_create:
-    excel_create = 'Export.xlsx'
+excel_create_file = input('\nWhat is your excel name which will be created? (For default, leave empty - Export.xlsx): ')
+if not excel_create_file:
+    excel_create_file = 'Export.xlsx'
 
 print()
 
@@ -98,11 +97,11 @@ my_excel_data[2].append(AdditionalAttributes_2)
 # Additional Attributes, Headers and Sizes are optional.
 
 # Option 1 - Push excel data without defining sizes, headers etc.
-File.excel_create(excel_create, my_excel_data)  # <-- HERE - Option 1
+File.excel_create(excel_create_file, my_excel_data)  # <-- HERE - Option 1
 # Option 2 - Push excel data with defining sizes, headers etc. + Use headers from the list defined above.
-File.excel_create(excel_create, my_excel_data, headers=headers, sizes=sizes, page_name='Sales Orders New')  # <-- HERE - Option 2
+File.excel_create(excel_create_file, my_excel_data, headers=headers, sizes=sizes, page_name='Sales Orders New')  # <-- HERE - Option 2
 # Option 3 - Use headers from reading excel.
-File.excel_create(excel_create, my_excel_data, headers=excel_headers[1], sizes=sizes, page_name='Sales Orders New')  # <-- HERE - Option 3
+File.excel_create(excel_create_file, my_excel_data, headers=excel_headers[1], sizes=sizes, page_name='Sales Orders New')  # <-- HERE - Option 3
 
 
 # //////// Done. Wait and shot down. \\\\\\\\
@@ -111,3 +110,4 @@ Progress.exit_app(message=message, exit_all=False)
 
 Progress.count_down(60, message='Shot down...')
 exit()
+
