@@ -4,7 +4,7 @@ idna==2.10
 lxml==4.5.1
 python-dotenv==0.14.0
 requests==2.24.0
-urllib3==1.25.9
+urllib3==1.26.5
 python-docx==0.8.10
 xlrd==1.2.0
 XlsxWriter==1.2.9
