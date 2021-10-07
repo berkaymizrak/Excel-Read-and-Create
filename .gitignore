@@ -1,6 +1,5 @@
 # Byte-compiled / optimized / DLL files
-__pycache__/
-*/__pycache__/
+*__pycache__/
 *.py[cod]
 *$py.class
 
@@ -59,6 +58,7 @@ coverage.xml
 # Django stuff:
 *.log
 local_settings.py
+db.sqlite
 db.sqlite3
 db.sqlite3-journal
 
@@ -104,8 +104,11 @@ celerybeat.pid
 
 # Environments
 .env
-Functions/.env
+*.env
+env.txt
+.env.txt
 .venv
+Functions/*.env
 env/
 venv/
 ENV/
@@ -135,17 +138,13 @@ dmypy.json
 .AppleDouble
 .LSOverride
 
-
-.env.txt
+### PyCharm ###
 *.pyc
+.idea/
 
-*Notes.py
-*.env
-*__pycache__/
+Notes.py
+
 
 
 media/
-.idea/
-
-db.sqlite
 
